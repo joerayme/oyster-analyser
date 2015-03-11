@@ -10,7 +10,8 @@
 (defn- get-type
   [map line]
   (conj map
-        {:type (cond (.startsWith (nth line 3) "Bus journey") "bus"
+        {:type (cond (.startsWith (nth line 3) "Auto top-up") "topup"
+                     (.startsWith (nth line 3) "Bus journey") "bus"
                      (.endsWith (nth line 3) "[London Overground]") "overground"
                      :else "tube")}))
 
@@ -44,12 +45,12 @@
 (defn- get-cost
   [map line]
   (conj map
-        {:cost (BigDecimal. (nth line 4))}))
+        {:cost (if (not (s/blank? (nth line 4))) (BigDecimal. (nth line 4)))}))
 
 (defn- get-credit
   [map line]
   (conj map
-        {:credit (BigDecimal. (nth line 5))}))
+        {:credit (if (not (s/blank? (nth line 5))) (BigDecimal. (nth line 5)))}))
 
 (defn- make-map
   [line]
@@ -60,7 +61,9 @@
         (get-times line)
         (get-duration line)
         (get-from-to line)
-        (get-cost line))))
+        (get-cost line)
+        (get-credit line)
+        )))
 
 (defn convert
   "Converts from CSV to an array of maps"
