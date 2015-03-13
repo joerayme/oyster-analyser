@@ -4,25 +4,28 @@ Performs analysis on a set of Oyster data exports.
 
 ## Installation
 
-FIXME
+    $ lein uberjar
 
 ## Usage
 
-FIXME: explanation
+Run the analysis on a set of csv files:
 
-    $ java -jar oyster-analyser-0.1.0-standalone.jar <file> [<file2> ...]
+    $ java -jar target/uberjar/oyster-analyser-0.1.0-SNAPSHOT-standalone.jar <file> [<file2> ...]
+
 
 ## Options
 
-FIXME: listing of options this app accepts.
+Takes a set of CSV files to analyse
 
 ## Examples
 
-...
+    $ java -jar target/uberjar/oyster-analyser-0.1.0-SNAPSHOT-standalone.jar *.csv
 
-### Bugs
-
-...
+     Total Duration       788
+     Avg. Duration      24.63
+     Total Cost       £137.35
+     Avg. Cost          £1.78
+     Journeys              77
 
 ### Planned features
 
