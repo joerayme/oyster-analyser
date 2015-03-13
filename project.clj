@@ -8,4 +8,5 @@
                  [clj-time "0.9.0"]]
   :main ^:skip-aot oyster-analyser.core
   :target-path "target/%s"
-  :profiles {:uberjar {:aot :all}})
+  :profiles {:uberjar {:aot :all}
+             :dev {:plugins [[com.jakemccrary/lein-test-refresh "0.6.0"]]}})
