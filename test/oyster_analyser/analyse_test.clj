@@ -3,28 +3,34 @@
             [oyster-analyser.analyse :refer :all]
             [clj-time.core :as t]))
 
-(def test-data
-  [{:type "tube"
-    :from "Victoria [London Underground]"
-    :to "Brixton [London Underground]"
-    :start (t/date-time 2015 2 21 13 12)
-    :end (t/date-time 2015 2 21 13 24)
-    :duration 12
-    :cost (BigDecimal. "2.8")}
-   {:type "tube"
-    :from "Angel"
-    :to "Oxford Circus"
-    :cost (BigDecimal. "2.3")
-    :start (t/date-time 2015 1 1 14 3)
-    :end (t/date-time 2015 1 1 14 20)
-    :duration 17}])
+(defn- make-record
+  [record]
+  (merge {:duration 0
+          :cost     (BigDecimal. 0)
+          :start    nil
+          :end      nil
+          :type     "none"} record))
 
 (deftest summarise-test
-  (testing "summary generated correctly"
-    (let [results (summarise test-data)]
-      (is (= (:averageDuration results) (/ 29 2)))
-      (is (= (:totalDuration results) 29))
-      (is (= (:averageCost results) (BigDecimal. "2.55")))
-      (is (= (:totalCost results) (BigDecimal. "5.1")))
-      (is (= (:totalJourneys results) 2))
+  (testing "duration"
+    (let [results (summarise [(make-record {:duration 12})
+                              (make-record {:duration 17})
+                              (make-record {:duration 63})])]
+      (is (= (:averageDuration results) (/ 92 3)))
+      (is (= (:totalDuration results) 92))
+      (is (= (:longestJourney results) 63))))
+  (testing "cost"
+    (let [results (summarise [(make-record {:cost (BigDecimal. "2.8")})
+                              (make-record {:cost (BigDecimal. "2.3")})
+                              (make-record {:cost (BigDecimal. "1.5")})])]
+
+      (is (= (:averageCost results) (BigDecimal. "2.2")))
+      (is (= (:totalCost results) (BigDecimal. "6.6")))))
+  (testing "journey count"
+    (let [results (summarise [(make-record {:type "tube"})
+                              (make-record {:type "tube"})
+                              (make-record {:type "bus"})
+                              (make-record {:type "topup"})])]
+      (is (= (:totalJourneys results) 3))
+      (is (= (:mostPopularType results) "tube"))
       )))

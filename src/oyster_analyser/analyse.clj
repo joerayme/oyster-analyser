@@ -8,10 +8,22 @@
   (let [durations (remove nil? (map #(:duration %) data))
         total-duration (reduce + durations)
         costs (remove nil? (map #(:cost %) data))
-        total-cost (reduce + costs)]
-    {:totalDuration total-duration
-     :averageDuration (/ total-duration (count durations))
-     :totalCost total-cost
-     :averageCost (.divide total-cost (BigDecimal. (count costs)) 2 RoundingMode/HALF_UP)
-     :totalJourneys (count (filter journey? data))
+        total-cost (if (> (count costs) 0)
+                     (reduce + costs)
+                     (BigDecimal. 0))]
+    {:totalDuration   total-duration
+     :averageDuration (if (pos? (count durations))
+                        (/ total-duration (count durations))
+                        0)
+     :longestJourney  (:duration (apply max-key :duration data))
+     :totalCost       total-cost
+     :averageCost     (if (pos? (count costs))
+                        (.divide total-cost (BigDecimal. (count costs)) 2 RoundingMode/HALF_UP)
+                        0)
+     :totalJourneys   (count (filter journey? data))
+     :mostPopularType (-> (map #(:type %) data)
+                          frequencies
+                          (#(apply max-key val %))
+                          first
+                          )
      }))
