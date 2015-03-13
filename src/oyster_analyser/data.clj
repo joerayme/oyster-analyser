@@ -1,5 +1,6 @@
 (ns oyster-analyser.data
   (:require [clojure.data.csv :as csv]
+            [clj-time.core :as t]
             [clj-time.format :as tf]
             [clojure.string :as s]))
 
@@ -19,11 +20,17 @@
   [date time]
   (tf/parse oyster-formatter (str date " " time)))
 
+(defn- fix-datetime
+  [date]
+  (if (< (t/hour date) 4) (t/plus date (t/days 1)) date))
+
 (defn- get-times
   [map line]
   (conj map
-        {:start (make-datetime (first line) (second line))
-         :end (if (not (empty? (nth line 2))) (make-datetime (first line) (nth line 2)))}))
+        {:start (fix-datetime (make-datetime (first line) (second line)))
+         :end (if (not (empty? (nth line 2)))
+                (fix-datetime (make-datetime (first line) (nth line 2)))
+                  )}))
 
 (defn- get-duration
   [map line]

@@ -6,9 +6,10 @@
 (def test-data "
 Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
 01-Jan-2015,14:03,14:20,\"Angel to Oxford Circus\",2.30,,10.70,\"\"
-21-Feb-2015,13:12,13:24,\"Victoria [London Underground] to Brixton [London Underground]\",2.30,,13.20,\"\"
+21-Feb-2015,00:12,00:24,\"Victoria [London Underground] to Brixton [London Underground]\",2.30,,13.20,\"\"
 25-Feb-2015,22:46,23:13,\"Honor Oak Park to Hoxton [London Overground]\",2.80,,18.20,\"\"
 29-Jan-2015,21:45,,\"Auto top-up, Leicester Square\",,20.00,28.70,\"\"
+21-Feb-2015,23:49,00:09,\"Waterloo (Jubilee line entrance) to Old Street\",.00,,11.40,\"The fare for this journey was capped as you reached the daily charging limit for the zones used\"
 24-Feb-2015,21:44,,\"Bus journey, route 55\",1.50,,24.60,\"\"")
 
 (deftest convert-test
@@ -26,8 +27,8 @@ Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
       (is (= (:from (nth result 1)) "Victoria [London Underground]"))
       (is (= (:to (nth result 1)) "Brixton [London Underground]"))
       (is (.compareTo (:cost (nth result 1)) (BigDecimal. "2.3")))
-      (is (= (:start (nth result 1)) (t/date-time 2015 2 21 13 12)))
-      (is (= (:end (nth result 1)) (t/date-time 2015 2 21 13 24)))
+      (is (= (:start (nth result 1)) (t/date-time 2015 2 22 0 12)))
+      (is (= (:end (nth result 1)) (t/date-time 2015 2 22 0 24)))
       (is (= (:duration (nth result 1)) 12))
 
       (is (= (:type (nth result 2)) "overground"))
@@ -47,11 +48,19 @@ Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
       (is (nil? (:duration (nth result 3))))
       (is (.compareTo (:credit (nth result 3)) (BigDecimal. "20")))
 
-      (is (= (:type (nth result 4)) "bus"))
-      (is (nil? (:from (nth result 4))))
-      (is (nil? (:to (nth result 4))))
-      (is (.compareTo (:cost (nth result 4)) (BigDecimal. "1.5")))
-      (is (= (:start (nth result 4)) (t/date-time 2015 2 24 21 44)))
-      (is (nil? (:end (nth result 4))))
-      (is (nil? (:duration (nth result 4))))
+      (is (= (:type (nth result 4)) "tube"))
+      (is (= (:from (nth result 4)) "Waterloo (Jubilee line entrance)"))
+      (is (= (:to (nth result 4)) "Old Street"))
+      (is (.compareTo (:cost (nth result 4)) (BigDecimal. "0")))
+      (is (= (:start (nth result 4)) (t/date-time 2015 2 21 23 49)))
+      (is (= (:end (nth result 4)) (t/date-time 2015 2 22 0 9)))
+      (is (= (:duration (nth result 4)) 20))
+
+      (is (= (:type (nth result 5)) "bus"))
+      (is (nil? (:from (nth result 5))))
+      (is (nil? (:to (nth result 5))))
+      (is (.compareTo (:cost (nth result 5)) (BigDecimal. "1.5")))
+      (is (= (:start (nth result 5)) (t/date-time 2015 2 24 21 44)))
+      (is (nil? (:end (nth result 5))))
+      (is (nil? (:duration (nth result 5))))
       )))
