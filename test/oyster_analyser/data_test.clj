@@ -64,3 +64,22 @@ Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
       (is (nil? (:end (nth result 5))))
       (is (nil? (:duration (nth result 5))))
       )))
+
+(deftest is-journey-test
+  (testing "correctly identifies topups"
+    (is (= (journey? {:type "tube"
+                    :from "Waterloo (Jubilee line entrance)"
+                    :to "Old Street"
+                    :start (t/date-time 2015 2 21 23 49)
+                    :end (t/date-time 2015 2 21 0 9)
+                    :duration 20
+                    :cost (BigDecimal. "0")
+                    :credit nil}) true))
+    (is (= (journey? {:type "topup"
+                    :from nil
+                    :to nil
+                    :start (t/date-time 2015 2 25 22 46)
+                    :end nil
+                    :duration nil
+                    :cost nil
+                    :credit (BigDecimal. "20")}) false))))

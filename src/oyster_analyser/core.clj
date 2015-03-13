@@ -8,7 +8,8 @@
 (def key-mapping {:totalDuration "Total Duration"
                   :averageDuration "Avg. Duration"
                   :totalCost "Total Cost"
-                  :averageCost "Avg. Cost"})
+                  :averageCost "Avg. Cost"
+                  :totalJourneys "Journeys"})
 
 (defn- print-table [aseq column-width]
   (binding [*out* (get-pretty-writer *out*)]

@@ -76,3 +76,8 @@
   "Converts from CSV to an array of maps"
   [csv-data]
   (remove nil? (map make-map (csv/read-csv csv-data))))
+
+(defn journey?
+  "Determines whether a record is a journey"
+  [record]
+  (not (= (:type record) "topup")))

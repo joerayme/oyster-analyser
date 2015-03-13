@@ -26,4 +26,5 @@
       (is (= (:totalDuration results) 29))
       (is (= (:averageCost results) (BigDecimal. "2.55")))
       (is (= (:totalCost results) (BigDecimal. "5.1")))
+      (is (= (:totalJourneys results) 2))
       )))

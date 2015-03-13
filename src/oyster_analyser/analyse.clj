@@ -1,4 +1,5 @@
-(ns oyster-analyser.analyse)
+(ns oyster-analyser.analyse
+  (:require [oyster-analyser.data :refer :all]))
 
 (import java.math.RoundingMode)
 
@@ -12,4 +13,5 @@
      :averageDuration (/ total-duration (count durations))
      :totalCost total-cost
      :averageCost (.divide total-cost (BigDecimal. (count costs)) 2 RoundingMode/HALF_UP)
+     :totalJourneys (count (filter journey? data))
      }))
