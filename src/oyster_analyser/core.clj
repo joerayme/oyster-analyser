@@ -11,15 +11,23 @@
                   :averageCost "Avg. Cost"
                   :totalJourneys "Journeys"})
 
-(defn- print-table [aseq column-width]
+(defn- print-row
+  [title value type column-width]
   (binding [*out* (get-pretty-writer *out*)]
-    (doseq [row aseq]
-      (cl-format true " ~A~v,1T ~7,2F"
-                 ((first row) key-mapping)
-                 (+ column-width 3)
-                 (second row)
-                 )
-      (prn))))
+    (cl-format true (str " ~A~v,1T ~7" type)
+               title
+               (+ column-width 3)
+               value
+               )
+    (prn)))
+
+(defn- print-table [table column-width]
+  (print-row "Total Duration" (:totalDuration table) "D" column-width)
+  (print-row "Avg. Duration" (:averageDuration table) ",2F" column-width)
+  (print-row "Total Cost" (cl-format nil "£~F" (:totalCost table)) "@A" column-width)
+  (print-row "Avg. Cost" (cl-format nil "£~F" (:averageCost table)) "@A" column-width)
+  (print-row "Journeys" (:totalJourneys table) "D" column-width)
+  )
 
 (defn -main
   [& args]
