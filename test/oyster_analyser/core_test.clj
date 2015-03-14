@@ -17,7 +17,7 @@
                     ["Total Cost" "£137.78"]
                     ["Avg. Cost" "£1.78"]
                     ["Journeys" "77"]
-                    ["Most popular mode" "bus (44 journeys)"]]))
+                    ["Most popular mode" "bus (57%)"]]))
       )
     )
   )

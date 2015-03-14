@@ -32,7 +32,7 @@
    [(:averageCost key-mapping) (.format currency-instance  (:averageCost table))]
    [(:totalJourneys key-mapping) (format "%d" (:totalJourneys table))]
    (let [[type cnt] (:mostPopularType table)]
-     [(:mostPopularType key-mapping) (format "%s (%d journeys)" type cnt)])
+     [(:mostPopularType key-mapping) (format "%s (%d%%)" type (int (* (/ cnt (:totalJourneys table)) 100)))])
    ])
 
 (defn- print-table
