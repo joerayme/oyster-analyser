@@ -1,7 +1,8 @@
 (ns oyster-analyser.core
   (:require [oyster-analyser.data :refer :all]
             [oyster-analyser.analyse :refer :all]
-            [clojure.string :as s])
+            [clojure.string :as s]
+            [clj-time.format :as f])
   (:import [java.text NumberFormat]
            [java.util Locale])
   (:gen-class))
@@ -58,9 +59,17 @@
         (println (fmt-row " " "  " "" row)))
       (println))))
 
+(def ^:private date-formatter (f/formatter "dd MMM yyyy"))
+
 (defn -main
   [& args]
-  (let [summary (summarise (flatten (map #(convert (slurp %)) args)))
+  (let [data (convert (apply str (map slurp args)))
+        summary (summarise data)
         max-title (apply max (map count (map #(% key-mapping) (keys summary))))]
+    (prn)
+    (print (format " From %s to %s"
+                   (f/unparse date-formatter (:start (first data)))
+                   (f/unparse date-formatter (:start (last data)))))
+    (prn)
     (print-table (make-table summary))
     ))
