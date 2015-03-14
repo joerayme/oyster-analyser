@@ -28,7 +28,9 @@
       (is (= (:totalCost results) (BigDecimal. "6.6")))))
   (testing "journey count"
     (let [results (summarise [(make-record {:type "tube"})
+                              (make-record {:type "topup"})
                               (make-record {:type "tube"})
+                              (make-record {:type "topup"})
                               (make-record {:type "bus"})
                               (make-record {:type "topup"})])]
       (is (= (:totalJourneys results) 3))

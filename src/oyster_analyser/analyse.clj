@@ -21,8 +21,10 @@
                         (.divide total-cost (BigDecimal. (count costs)) 2 RoundingMode/HALF_UP)
                         0)
      :totalJourneys   (count (filter journey? data))
-     :mostPopularType (-> (map #(:type %) data)
-                          frequencies
-                          (#(apply max-key val %))
-                          )
+     :mostPopularType (->> data
+                           (filter journey?)
+                           (map #(:type %))
+                           frequencies
+                           (#(apply max-key val %))
+                           )
      }))
