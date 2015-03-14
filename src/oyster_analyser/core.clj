@@ -59,17 +59,29 @@
         (println (fmt-row " " "  " "" row)))
       (println))))
 
+(defn- usage
+  [opts]
+  (->> ["Analyses an Oyster data dump and prints out the results"
+        ""
+        "Usage: oyster-analyser [file ...]"]
+       (s/join \newline)))
+
+
 (def ^:private date-formatter (f/formatter "dd MMM yyyy"))
 
 (defn -main
   [& args]
-  (let [data (convert (apply str (map slurp args)))
-        summary (summarise data)
-        max-title (apply max (map count (map #(% key-mapping) (keys summary))))]
-    (prn)
-    (print (format " From %s to %s"
-                   (f/unparse date-formatter (:start (first data)))
-                   (f/unparse date-formatter (:start (last data)))))
-    (prn)
-    (print-table (make-table summary))
-    ))
+  (try
+    (let [data (convert (apply str (map slurp args)))
+          summary (summarise data)
+          max-title (apply max (map count (map #(% key-mapping) (keys summary))))]
+      (prn)
+      (print (format " From %s to %s"
+                     (f/unparse date-formatter (:start (first data)))
+                     (f/unparse date-formatter (:start (last data)))))
+      (prn)
+      (print-table (make-table summary))
+      )
+    (catch java.io.FileNotFoundException e
+      (println (str "Error: " (.getMessage e)))
+      (println (usage "")))))
