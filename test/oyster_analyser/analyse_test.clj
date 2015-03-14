@@ -5,7 +5,7 @@
 
 (defn- make-record
   [record]
-  (merge {:duration 0
+  (merge {:duration nil
           :cost     (BigDecimal. 0)
           :start    nil
           :end      nil
