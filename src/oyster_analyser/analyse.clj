@@ -24,6 +24,5 @@
      :mostPopularType (-> (map #(:type %) data)
                           frequencies
                           (#(apply max-key val %))
-                          first
                           )
      }))

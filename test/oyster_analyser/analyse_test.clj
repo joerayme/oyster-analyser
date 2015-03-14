@@ -32,5 +32,5 @@
                               (make-record {:type "bus"})
                               (make-record {:type "topup"})])]
       (is (= (:totalJourneys results) 3))
-      (is (= (:mostPopularType results) "tube"))
+      (is (= (:mostPopularType results) ["tube" 2]))
       )))

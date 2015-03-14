@@ -36,7 +36,8 @@
   (print-row (:totalCost key-mapping) (cl-format nil "£~F" (:totalCost table)) "@A" column-width)
   (print-row (:averageCost key-mapping) (cl-format nil "£~F" (:averageCost table)) "@A" column-width)
   (print-row (:totalJourneys key-mapping) (:totalJourneys table) "D" column-width)
-  (print-row (:mostPopularType key-mapping) (:mostPopularType table) "@A" column-width)
+  (let [[type cnt] (:mostPopularType table)]
+    (print-row (:mostPopularType key-mapping) (format "%s (%d)" type cnt) "@A" column-width))
   )
 
 (defn -main
