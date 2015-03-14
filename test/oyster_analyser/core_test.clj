@@ -5,7 +5,8 @@
 (deftest make-table-test
   (testing "table"
     (let [table (make-table {:totalDuration 788
-                             :averageDuration (BigDecimal. "24.63")
+                             :meanDuration (BigDecimal. "24.63")
+                             :shortestJourney 9
                              :longestJourney 58
                              :totalCost (BigDecimal. "137.78")
                              :averageCost (BigDecimal. "1.78")
@@ -13,6 +14,7 @@
                              :mostPopularType '("bus" 44)})]
       (is (= table [["Total Duration" "13.13 hrs"]
                     ["Avg. Duration" "24.63 mins"]
+                    ["Shortest Journey" "9 mins"]
                     ["Longest Journey" "58 mins"]
                     ["Total Cost" "£137.78"]
                     ["Avg. Cost" "£1.78"]

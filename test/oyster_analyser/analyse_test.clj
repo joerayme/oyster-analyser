@@ -14,10 +14,12 @@
 (deftest summarise-test
   (testing "duration"
     (let [results (summarise [(make-record {:duration 12})
+                              (make-record {:duration nil})
                               (make-record {:duration 17})
                               (make-record {:duration 63})])]
-      (is (= (:averageDuration results) (/ 92 3)))
+      (is (= (:meanDuration results) (/ 92 3)))
       (is (= (:totalDuration results) 92))
+      (is (= (:shortestJourney results) 12))
       (is (= (:longestJourney results) 63))))
   (testing "cost"
     (let [results (summarise [(make-record {:cost (BigDecimal. "2.8")})

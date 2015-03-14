@@ -12,9 +12,10 @@
                      (reduce + costs)
                      (BigDecimal. 0))]
     {:totalDuration   total-duration
-     :averageDuration (if (pos? (count durations))
+     :meanDuration    (if (pos? (count durations))
                         (/ total-duration (count durations))
                         0)
+     :shortestJourney (if (pos? (count durations)) (apply min durations) nil)
      :longestJourney  (if (pos? (count durations)) (apply max durations) nil)
      :totalCost       total-cost
      :averageCost     (if (pos? (count costs))

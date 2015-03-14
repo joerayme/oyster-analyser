@@ -16,7 +16,8 @@
     :else (format "%.2f mins" (float minutes))))
 
 (def ^:private key-mapping {:totalDuration   "Total Duration"
-                            :averageDuration "Avg. Duration"
+                            :meanDuration    "Avg. Duration"
+                            :shortestJourney "Shortest Journey"
                             :longestJourney  "Longest Journey"
                             :totalCost       "Total Cost"
                             :averageCost     "Avg. Cost"
@@ -26,7 +27,8 @@
 (defn make-table
   [table]
   [[(:totalDuration key-mapping) (format-duration (:totalDuration table))]
-   [(:averageDuration key-mapping) (format-duration (:averageDuration table))]
+   [(:meanDuration key-mapping) (format-duration (:meanDuration table))]
+   [(:shortestJourney key-mapping) (format-duration (:shortestJourney table))]
    [(:longestJourney key-mapping) (format-duration (:longestJourney table))]
    [(:totalCost key-mapping) (.format currency-instance (:totalCost table))]
    [(:averageCost key-mapping) (.format currency-instance  (:averageCost table))]
