@@ -15,54 +15,65 @@ Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
 (deftest convert-test
   (testing "with correctly formatted data"
     (let [result (convert test-data)]
-      (is (= (:type (nth result 0)) "tube"))
-      (is (= (:from (nth result 0)) "Angel"))
-      (is (= (:to (nth result 0)) "Oxford Circus"))
-      (is (.compareTo (:cost (nth result 0)) (BigDecimal. "2.3")))
-      (is (= (:start (nth result 0)) (t/date-time 2015 1 1 14 3)))
-      (is (= (:end (nth result 0)) (t/date-time 2015 1 1 14 20)))
-      (is (= (:duration (nth result 0)) 17))
+      (is (= {:type "tube"
+              :from "Angel"
+              :to "Oxford Circus"
+              :credit nil
+              :cost 2.3M
+              :start (t/date-time 2015 1 1 14 3)
+              :end (t/date-time 2015 1 1 14 20)
+              :duration 17}
+             (nth result 0)))
 
-      (is (= (:type (nth result 1)) "tube"))
-      (is (= (:from (nth result 1)) "Victoria [London Underground]"))
-      (is (= (:to (nth result 1)) "Brixton [London Underground]"))
-      (is (.compareTo (:cost (nth result 1)) (BigDecimal. "2.3")))
-      (is (= (:start (nth result 1)) (t/date-time 2015 2 22 0 12)))
-      (is (= (:end (nth result 1)) (t/date-time 2015 2 22 0 24)))
-      (is (= (:duration (nth result 1)) 12))
+      (is (= {:type "topup"
+              :from nil
+              :to nil
+              :credit 20M
+              :cost nil
+              :start (t/date-time 2015 1 29 21 45)
+              :end nil
+              :duration nil}
+             (nth result 1)))
 
-      (is (= (:type (nth result 2)) "overground"))
-      (is (= (:from (nth result 2)) "Honor Oak Park"))
-      (is (= (:to (nth result 2)) "Hoxton [London Overground]"))
-      (is (.compareTo (:cost (nth result 2)) (BigDecimal. "2.8")))
-      (is (= (:start (nth result 2)) (t/date-time 2015 2 25 22 46)))
-      (is (= (:end (nth result 2)) (t/date-time 2015 2 25 23 13)))
-      (is (= (:duration (nth result 2)) 27))
+      (is (= {:type "tube"
+              :from "Waterloo (Jubilee line entrance)"
+              :to "Old Street"
+              :credit nil
+              :cost (BigDecimal. "0")
+              :start (t/date-time 2015 2 21 23 49)
+              :end (t/date-time 2015 2 22 0 9)
+              :duration 20}
+             (nth result 2)))
 
-      (is (= (:type (nth result 3)) "topup"))
-      (is (nil? (:from (nth result 3))))
-      (is (nil? (:to (nth result 3))))
-      (is (nil? (:cost (nth result 3))))
-      (is (= (:start (nth result 3)) (t/date-time 2015 1 29 21 45)))
-      (is (nil? (:end (nth result 3))))
-      (is (nil? (:duration (nth result 3))))
-      (is (.compareTo (:credit (nth result 3)) (BigDecimal. "20")))
+      (is (= {:type "tube"
+              :from "Victoria [London Underground]"
+              :to "Brixton [London Underground]"
+              :credit nil
+              :cost (BigDecimal. "2.3")
+              :start (t/date-time 2015 2 22 0 12)
+              :end (t/date-time 2015 2 22 0 24)
+              :duration 12}
+             (nth result 3)))
 
-      (is (= (:type (nth result 4)) "tube"))
-      (is (= (:from (nth result 4)) "Waterloo (Jubilee line entrance)"))
-      (is (= (:to (nth result 4)) "Old Street"))
-      (is (.compareTo (:cost (nth result 4)) (BigDecimal. "0")))
-      (is (= (:start (nth result 4)) (t/date-time 2015 2 21 23 49)))
-      (is (= (:end (nth result 4)) (t/date-time 2015 2 22 0 9)))
-      (is (= (:duration (nth result 4)) 20))
+      (is (= {:type "bus"
+              :from nil
+              :to nil
+              :credit nil
+              :cost (BigDecimal. "1.5")
+              :start (t/date-time 2015 2 24 21 44)
+              :end nil
+              :duration nil}
+             (nth result 4)))
 
-      (is (= (:type (nth result 5)) "bus"))
-      (is (nil? (:from (nth result 5))))
-      (is (nil? (:to (nth result 5))))
-      (is (.compareTo (:cost (nth result 5)) (BigDecimal. "1.5")))
-      (is (= (:start (nth result 5)) (t/date-time 2015 2 24 21 44)))
-      (is (nil? (:end (nth result 5))))
-      (is (nil? (:duration (nth result 5))))
+      (is (= {:type "overground"
+              :from "Honor Oak Park"
+              :to "Hoxton [London Overground]"
+              :credit nil
+              :cost (BigDecimal. "2.8")
+              :start (t/date-time 2015 2 25 22 46)
+              :end (t/date-time 2015 2 25 23 13)
+              :duration 27}
+             (nth result 5)))
       )))
 
 (deftest is-journey-test
@@ -74,7 +85,8 @@ Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
                     :end (t/date-time 2015 2 21 0 9)
                     :duration 20
                     :cost (BigDecimal. "0")
-                    :credit nil}) true))
+                    :credit nil})
+           true))
     (is (= (journey? {:type "topup"
                     :from nil
                     :to nil
@@ -82,4 +94,5 @@ Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
                     :end nil
                     :duration nil
                     :cost nil
-                    :credit (BigDecimal. "20")}) false))))
+                    :credit (BigDecimal. "20")})
+           false))))

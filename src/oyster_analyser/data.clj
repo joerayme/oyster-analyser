@@ -9,7 +9,7 @@
 (def oyster-formatter (tf/formatter "dd-MMM-yyyy HH:mm"))
 
 (defn- get-type
-  [map line]
+  [line map]
   (conj map
         {:type (cond (.startsWith (nth line 3) "Auto top-up") "topup"
                      (.startsWith (nth line 3) "Bus journey") "bus"
@@ -25,7 +25,7 @@
   (if (< (t/hour date) 4) (t/plus date (t/days 1)) date))
 
 (defn- get-times
-  [map line]
+  [line map]
   (conj map
         {:start (fix-datetime (make-datetime (first line) (second line)))
          :end (if (not (empty? (nth line 2)))
@@ -33,13 +33,13 @@
                   )}))
 
 (defn- get-duration
-  [map line]
+  [line map]
   (conj map
         {:duration (if (not (nil? (:end map)))
                      (.getMinutes (.toStandardMinutes (Period. (:start map) (:end map)))))}))
 
 (defn- get-from-to
-  [map line]
+  [line map]
   (conj map
         {:from nil
          :to nil}
@@ -50,12 +50,12 @@
                  :to (second parts)}))))
 
 (defn- get-cost
-  [map line]
+  [line map]
   (conj map
         {:cost (if (not (s/blank? (nth line 4))) (BigDecimal. (nth line 4)))}))
 
 (defn- get-credit
-  [map line]
+  [line map]
   (conj map
         {:credit (if (not (s/blank? (nth line 5))) (BigDecimal. (nth line 5)))}))
 
@@ -63,19 +63,22 @@
   [line]
   (if (and (= (count line) 8)
            (not (= (first line) "Date")))
-    (-> {}
-        (get-type line)
-        (get-times line)
-        (get-duration line)
-        (get-from-to line)
-        (get-cost line)
-        (get-credit line)
-        )))
+    (->> {}
+         (get-type line)
+         (get-times line)
+         (get-duration line)
+         (get-from-to line)
+         (get-cost line)
+         (get-credit line)
+         )))
 
 (defn convert
   "Converts from CSV to an array of maps"
   [csv-data]
-  (remove nil? (map make-map (csv/read-csv csv-data))))
+  (sort-by :start
+           (remove nil?
+                   (map make-map
+                        (csv/read-csv csv-data)))))
 
 (defn journey?
   "Determines whether a record is a journey"
