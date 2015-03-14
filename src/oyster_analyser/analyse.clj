@@ -15,7 +15,7 @@
      :averageDuration (if (pos? (count durations))
                         (/ total-duration (count durations))
                         0)
-     :longestJourney  (apply max durations)
+     :longestJourney  (if (pos? (count durations)) (apply max durations) nil)
      :totalCost       total-cost
      :averageCost     (if (pos? (count costs))
                         (.divide total-cost (BigDecimal. (count costs)) 2 RoundingMode/HALF_UP)
