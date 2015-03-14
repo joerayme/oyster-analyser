@@ -1,50 +1,64 @@
 (ns oyster-analyser.core
   (:require [oyster-analyser.data :refer :all]
             [oyster-analyser.analyse :refer :all]
-            [clojure.pprint :refer [pprint get-pretty-writer cl-format]]
             [clojure.string :as s])
+  (:import [java.text NumberFormat]
+           [java.util Locale])
   (:gen-class))
+
+(def ^:private currency-instance (NumberFormat/getCurrencyInstance Locale/UK))
 
 (defn- format-duration
   [minutes]
   (cond
-    (> minutes 59) (format "%f hrs" (/ minutes 60))
-    :else (format "%d mins" minutes)))
+    (> minutes 59) (format "%.2f hrs" (float (/ minutes 60)))
+    (integer? minutes) (format "%d mins" minutes)
+    :else (format "%.2f mins" (float minutes))))
 
-(def key-mapping {:totalDuration "Total Duration"
-                  :averageDuration "Avg. Duration"
-                  :longestJourney "Longest Journey"
-                  :totalCost "Total Cost"
-                  :averageCost "Avg. Cost"
-                  :totalJourneys "Journeys"
-                  :mostPopularType "Most popular mode"})
+(def ^:private key-mapping {:totalDuration   "Total Duration"
+                            :averageDuration "Avg. Duration"
+                            :longestJourney  "Longest Journey"
+                            :totalCost       "Total Cost"
+                            :averageCost     "Avg. Cost"
+                            :totalJourneys   "Journeys"
+                            :mostPopularType "Most popular mode"})
 
-(defn- print-row
-  [title value type column-width]
-  (binding [*out* (get-pretty-writer *out*)]
-    (cl-format true (str " ~A~v,1T ~7" type)
-               title
-               (+ column-width 4)
-               value
-               )
-    (prn)))
+(defn make-table
+  [table]
+  [[(:totalDuration key-mapping) (format-duration (:totalDuration table))]
+   [(:averageDuration key-mapping) (format-duration (:averageDuration table))]
+   [(:longestJourney key-mapping) (format-duration (:longestJourney table))]
+   [(:totalCost key-mapping) (.format currency-instance (:totalCost table))]
+   [(:averageCost key-mapping) (.format currency-instance  (:averageCost table))]
+   [(:totalJourneys key-mapping) (format "%d" (:totalJourneys table))]
+   (let [[type cnt] (:mostPopularType table)]
+     [(:mostPopularType key-mapping) (format "%s (%d journeys)" type cnt)])
+   ])
 
-(defn- print-table [table column-width]
-  (print-row (:totalDuration key-mapping) (:totalDuration table) "D" column-width)
-  (print-row (:averageDuration key-mapping) (:averageDuration table) ",2F" column-width)
-  (print-row (:longestJourney key-mapping) (format-duration (:longestJourney table)) "A" column-width)
-  (print-row (:totalCost key-mapping) (cl-format nil "£~F" (:totalCost table)) "@A" column-width)
-  (print-row (:averageCost key-mapping) (cl-format nil "£~F" (:averageCost table)) "@A" column-width)
-  (print-row (:totalJourneys key-mapping) (:totalJourneys table) "D" column-width)
-  (let [[type cnt] (:mostPopularType table)]
-    (print-row (:mostPopularType key-mapping) (format "%s (%d)" type cnt) "@A" column-width))
-  )
+(defn- print-table
+  [rows]
+  (when (seq rows)
+    (let [ks (range (count (first rows)))
+          widths (map
+                   (fn [k]
+                     (apply max (map #(count (str (get % k))) rows)))
+                   ks)
+          spacers (map #(apply str (repeat % "-")) widths)
+          fmts (map #(str "%" % "s") widths)
+          fmt-row (fn [leader divider trailer row]
+                    (str leader
+                         (apply str (interpose divider
+                                               (for [[col fmt] (map vector (map #(get row %) ks) fmts)]
+                                                 (format fmt (str col)))))
+                         trailer))]
+      (println)
+      (doseq [row rows]
+        (println (fmt-row " " "  " "" row)))
+      (println))))
 
 (defn -main
   [& args]
   (let [summary (summarise (flatten (map #(convert (slurp %)) args)))
         max-title (apply max (map count (map #(% key-mapping) (keys summary))))]
-    (println)
-    (print-table summary max-title)
-    (println)
+    (print-table (make-table summary))
     ))
