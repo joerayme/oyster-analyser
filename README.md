@@ -2,7 +2,7 @@
 
 Performs analysis on a set of Oyster data exports.
 
-## Installation
+## Build
 
     $ lein uberjar
 
@@ -10,7 +10,7 @@ Performs analysis on a set of Oyster data exports.
 
 Run the analysis on a set of csv files:
 
-    $ java -jar target/uberjar/oyster-analyser-0.1.0-SNAPSHOT-standalone.jar <file> [<file2> ...]
+    $ java -jar target/uberjar/oyster-analyser-uber.jar <file> [<file2> ...]
 
 
 ## Options
@@ -19,19 +19,22 @@ Takes a set of CSV files to analyse
 
 ## Examples
 
-    $ java -jar target/uberjar/oyster-analyser-0.1.0-SNAPSHOT-standalone.jar *.csv
+    $ java -jar target/uberjar/oyster-analyser-uber.jar *.csv
 
-     Total Duration       788
-     Avg. Duration      24.63
-     Total Cost       £137.35
-     Avg. Cost          £1.78
-     Journeys              77
+     From 01 Jan 2015 to 28 Feb 2015
+
+        Total Duration   13.13 hrs
+         Avg. Duration  24.63 mins
+      Shortest Journey     10 mins
+       Longest Journey     58 mins
+            Total Cost     £137.35
+             Avg. Cost       £1.78
+              Journeys          77
+     Most popular mode   bus (57%)
 
 ### Planned features
 
-* Most used transport type
 * Spend per week
-* Min, max, average journey times
 
 ## License
 
