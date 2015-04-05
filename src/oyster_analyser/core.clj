@@ -12,9 +12,8 @@
 (defn- format-duration
   [minutes]
   (cond
-    (> minutes 59) (format "%.2f hrs" (float (/ minutes 60)))
-    (integer? minutes) (format "%d mins" minutes)
-    :else (format "%.2f mins" (float minutes))))
+    (> minutes 59) (format "%d hrs %s" (int (/ minutes 60)) (format-duration (mod minutes 60)))
+    :else (format "%d mins" (int minutes))))
 
 (def ^:private key-mapping {:totalDuration   "Total Duration"
                             :meanDuration    "Avg. Duration"

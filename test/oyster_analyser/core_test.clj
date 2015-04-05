@@ -12,8 +12,8 @@
                              :averageCost (BigDecimal. "1.78")
                              :totalJourneys 77
                              :mostPopularType '("bus" 44)})]
-      (is (= table [["Total Duration" "13.13 hrs"]
-                    ["Avg. Duration" "24.63 mins"]
+      (is (= table [["Total Duration" "13 hrs 8 mins"]
+                    ["Avg. Duration" "24 mins"]
                     ["Shortest Journey" "9 mins"]
                     ["Longest Journey" "58 mins"]
                     ["Total Cost" "£137.78"]
