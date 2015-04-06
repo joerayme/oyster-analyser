@@ -10,7 +10,8 @@ Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
 25-Feb-2015,22:46,23:13,\"Honor Oak Park to Hoxton [London Overground]\",2.80,,18.20,\"\"
 29-Jan-2015,21:45,,\"Auto top-up, Leicester Square\",,20.00,28.70,\"\"
 21-Feb-2015,23:49,00:09,\"Waterloo (Jubilee line entrance) to Old Street\",.00,,11.40,\"The fare for this journey was capped as you reached the daily charging limit for the zones used\"
-24-Feb-2015,21:44,,\"Bus journey, route 55\",1.50,,24.60,\"\"")
+24-Feb-2015,21:44,,\"Bus journey, route 55\",1.50,,24.60,\"\"
+08-Mar-2015,12:23,,\"Riverboat ticket bought using pay as you go\",6.44,,7.46,\"\"")
 
 (deftest convert-test
   (testing "with correctly formatted data"
@@ -74,6 +75,16 @@ Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
               :end (t/date-time 2015 2 25 23 13)
               :duration 27}
              (nth result 5)))
+
+      (is (= {:type "boat"
+              :from nil
+              :to nil
+              :credit nil
+              :cost (BigDecimal. "6.44")
+              :start (t/date-time 2015 3 8 12 23)
+              :end nil
+              :duration nil}
+             (nth result 6)))
       )))
 
 (deftest is-journey-test

@@ -14,6 +14,7 @@
         {:type (cond (.startsWith (nth line 3) "Auto top-up") "topup"
                      (.startsWith (nth line 3) "Bus journey") "bus"
                      (.endsWith (nth line 3) "[London Overground]") "overground"
+                     (.startsWith (nth line 3) "Riverboat") "boat"
                      :else "tube")}))
 
 (defn- make-datetime
