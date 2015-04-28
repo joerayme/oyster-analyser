@@ -12,9 +12,8 @@
 (defn- format-duration
   [minutes]
   (cond
-    (> minutes 59) (format "%.2f hrs" (float (/ minutes 60)))
-    (integer? minutes) (format "%d mins" minutes)
-    :else (format "%.2f mins" (float minutes))))
+    (> minutes 59) (format "%d hrs %s" (int (/ minutes 60)) (format-duration (mod minutes 60)))
+    :else (format "%d mins" (int minutes))))
 
 (def ^:private key-mapping {:totalDuration   "Total Duration"
                             :meanDuration    "Avg. Duration"
@@ -71,17 +70,20 @@
 
 (defn -main
   [& args]
-  (try
-    (let [data (convert (apply str (map slurp args)))
-          summary (summarise data)
-          max-title (apply max (map count (map #(% key-mapping) (keys summary))))]
-      (prn)
-      (print (format " From %s to %s"
-                     (f/unparse date-formatter (:start (first data)))
-                     (f/unparse date-formatter (:start (last data)))))
-      (prn)
-      (print-table (make-table summary))
-      )
-    (catch java.io.FileNotFoundException e
-      (println (str "Error: " (.getMessage e)))
-      (println (usage "")))))
+  (if (> (count args) 0)
+    (try
+      (let [data (convert (apply str (map slurp args)))
+            summary (summarise data)
+            max-title (apply max (map count (map #(% key-mapping) (keys summary))))]
+        (prn)
+        (print (format " From %s to %s"
+                       (f/unparse date-formatter (:start (first data)))
+                       (f/unparse date-formatter (:start (last data)))))
+        (prn)
+        (print-table (make-table summary))
+        )
+      (catch java.io.FileNotFoundException e
+        (println (str "Error: " (.getMessage e)))
+        (println (usage ""))))
+    (do (println "Please provide some files to analyse")
+        (println (usage "")))))
