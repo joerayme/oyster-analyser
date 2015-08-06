@@ -27,22 +27,29 @@
   [date time]
   (tf/parse oyster-formatter (str date " " time)))
 
-(defn- fix-datetime
-  [date]
-  (if (< (t/hour date) 4) (t/plus date (t/days 1)) date))
+(defn- fix-datetime [date]
+  """
+  Oyster times between midnight and 4am count as the previous day
+  so we fix them by adding a day onto the date if we're between
+  those two times
+  """
+  (if (< (t/hour date) 4)
+    (t/plus date (t/days 1))
+    date))
 
 (defn- get-times
   [line map]
   (conj map
-        {:start (fix-datetime (make-datetime (first line) (second line)))
+        {:start (if (not (empty? (second line)))
+                  (fix-datetime (make-datetime (first line) (second line))))
          :end (if (not (empty? (nth line 2)))
                 (fix-datetime (make-datetime (first line) (nth line 2)))
-                  )}))
+                )}))
 
 (defn- get-duration
   [line map]
   (conj map
-        {:duration (if (not (nil? (:end map)))
+        {:duration (if (and (not (nil? (:start map))) (not (nil? (:end map))))
                      (.getMinutes (.toStandardMinutes (Period. (:start map) (:end map)))))}))
 
 (defn- get-from-to
