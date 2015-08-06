@@ -90,8 +90,8 @@
             max-title (apply max (map count (map #(% key-mapping) (keys summary))))]
         (prn)
         (print (format " From %s to %s"
-                       (f/unparse date-formatter (:start (first data)))
-                       (f/unparse date-formatter (:start (last data)))))
+                       (f/unparse date-formatter (:start (first (filter #(not (nil? (:start %))) data))))
+                       (f/unparse date-formatter (:start (last (filter #(not (nil? (:start %))) data))))))
         (prn)
         (print-table (make-table summary))
         )
