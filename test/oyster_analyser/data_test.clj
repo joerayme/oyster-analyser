@@ -16,7 +16,7 @@ Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
 (deftest convert-test
   (testing "with correctly formatted data"
     (let [result (convert test-data)]
-      (is (= {:type "tube"
+      (is (= {:type TYPE_RAIL
               :from "Angel"
               :to "Oxford Circus"
               :credit nil
@@ -26,7 +26,7 @@ Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
               :duration 17}
              (nth result 0)))
 
-      (is (= {:type "topup"
+      (is (= {:type TYPE_TOPUP
               :from nil
               :to nil
               :credit 20M
@@ -36,7 +36,7 @@ Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
               :duration nil}
              (nth result 1)))
 
-      (is (= {:type "tube"
+      (is (= {:type TYPE_RAIL
               :from "Waterloo (Jubilee line entrance)"
               :to "Old Street"
               :credit nil
@@ -46,7 +46,7 @@ Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
               :duration 20}
              (nth result 2)))
 
-      (is (= {:type "tube"
+      (is (= {:type TYPE_RAIL
               :from "Victoria [London Underground]"
               :to "Brixton [London Underground]"
               :credit nil
@@ -56,7 +56,7 @@ Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
               :duration 12}
              (nth result 3)))
 
-      (is (= {:type "bus"
+      (is (= {:type TYPE_BUS
               :from nil
               :to nil
               :credit nil
@@ -66,7 +66,7 @@ Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
               :duration nil}
              (nth result 4)))
 
-      (is (= {:type "overground"
+      (is (= {:type TYPE_OVERGROUND
               :from "Honor Oak Park"
               :to "Hoxton [London Overground]"
               :credit nil
@@ -76,7 +76,7 @@ Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
               :duration 27}
              (nth result 5)))
 
-      (is (= {:type "boat"
+      (is (= {:type TYPE_BOAT
               :from nil
               :to nil
               :credit nil
@@ -89,7 +89,7 @@ Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
 
 (deftest is-journey-test
   (testing "correctly identifies topups"
-    (is (= (journey? {:type "tube"
+    (is (= (journey? {:type TYPE_RAIL
                     :from "Waterloo (Jubilee line entrance)"
                     :to "Old Street"
                     :start (t/date-time 2015 2 21 23 49)
@@ -98,7 +98,7 @@ Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
                     :cost (BigDecimal. "0")
                     :credit nil})
            true))
-    (is (= (journey? {:type "topup"
+    (is (= (journey? {:type TYPE_TOPUP
                     :from nil
                     :to nil
                     :start (t/date-time 2015 2 25 22 46)

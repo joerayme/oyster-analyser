@@ -1,6 +1,7 @@
 (ns oyster-analyser.analyse-test
   (:require [clojure.test :refer :all]
             [oyster-analyser.analyse :refer :all]
+            [oyster-analyser.data :as data]
             [clj-time.core :as t]))
 
 (defn- make-record
@@ -29,12 +30,12 @@
       (is (= (:averageCost results) (BigDecimal. "2.2")))
       (is (= (:totalCost results) (BigDecimal. "6.6")))))
   (testing "journey count"
-    (let [results (summarise [(make-record {:type "tube"})
-                              (make-record {:type "topup"})
-                              (make-record {:type "tube"})
-                              (make-record {:type "topup"})
-                              (make-record {:type "bus"})
-                              (make-record {:type "topup"})])]
+    (let [results (summarise [(make-record {:type data/TYPE_RAIL})
+                              (make-record {:type data/TYPE_TOPUP})
+                              (make-record {:type data/TYPE_RAIL})
+                              (make-record {:type data/TYPE_TOPUP})
+                              (make-record {:type data/TYPE_BUS})
+                              (make-record {:type data/TYPE_TOPUP})])]
       (is (= (:totalJourneys results) 3))
-      (is (= (:mostPopularType results) ["tube" 2]))
+      (is (= (:mostPopularType results) [data/TYPE_RAIL 2]))
       )))

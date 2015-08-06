@@ -8,14 +8,20 @@
 
 (def oyster-formatter (tf/formatter "dd-MMM-yyyy HH:mm"))
 
+(def TYPE_TOPUP "topup")
+(def TYPE_BUS "bus")
+(def TYPE_OVERGROUND "overground")
+(def TYPE_BOAT "boat")
+(def TYPE_RAIL "rail")
+
 (defn- get-type
   [line map]
   (conj map
-        {:type (cond (.startsWith (nth line 3) "Auto top-up") "topup"
-                     (.startsWith (nth line 3) "Bus journey") "bus"
-                     (.endsWith (nth line 3) "[London Overground]") "overground"
-                     (.startsWith (nth line 3) "Riverboat") "boat"
-                     :else "tube")}))
+        {:type (cond (.startsWith (nth line 3) "Auto top-up") TYPE_TOPUP
+                     (.startsWith (nth line 3) "Bus journey") TYPE_BUS
+                     (.endsWith (nth line 3) "[London Overground]") TYPE_OVERGROUND
+                     (.startsWith (nth line 3) "Riverboat") TYPE_BOAT
+                     :else TYPE_RAIL)}))
 
 (defn- make-datetime
   [date time]
@@ -44,8 +50,8 @@
   (conj map
         {:from nil
          :to nil}
-        (cond (or (= (:type map) "tube")
-                  (= (:type map) "overground"))
+        (cond (or (= (:type map) TYPE_RAIL)
+                  (= (:type map) TYPE_OVERGROUND))
               (let [parts (s/split (nth line 3) #" to ")]
                 {:from (first parts)
                  :to (second parts)}))))
@@ -84,4 +90,4 @@
 (defn journey?
   "Determines whether a record is a journey"
   [record]
-  (not (= (:type record) "topup")))
+  (not (= (:type record) TYPE_TOPUP)))
