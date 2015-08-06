@@ -22,6 +22,12 @@
       (is (= (:totalDuration results) 92))
       (is (= (:shortestJourney results) 12))
       (is (= (:longestJourney results) 63))))
+  (testing "credit"
+    (let [results (summarise [(make-record {:credit (BigDecimal. "2.8")})
+                              (make-record {:credit (BigDecimal. "2.3")})
+                              (make-record {:credit (BigDecimal. "1.5")})])]
+
+      (is (= (:totalCredit results) (BigDecimal. "6.6")))))
   (testing "cost"
     (let [results (summarise [(make-record {:cost (BigDecimal. "2.8")})
                               (make-record {:cost (BigDecimal. "2.3")})

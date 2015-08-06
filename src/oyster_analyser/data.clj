@@ -13,11 +13,13 @@
 (def TYPE_OVERGROUND "overground")
 (def TYPE_BOAT "boat")
 (def TYPE_RAIL "rail")
+(def TYPE_REFUND "refund")
 
 (defn- get-type
   [line map]
   (conj map
-        {:type (cond (.startsWith (nth line 3) "Auto top-up") TYPE_TOPUP
+        {:type (cond (.contains (s/lower-case (nth line 3)) "refund") TYPE_REFUND
+                     (.startsWith (nth line 3) "Auto top-up") TYPE_TOPUP
                      (.startsWith (nth line 3) "Bus journey") TYPE_BUS
                      (.endsWith (nth line 3) "[London Overground]") TYPE_OVERGROUND
                      (.startsWith (nth line 3) "Riverboat") TYPE_BOAT
@@ -97,4 +99,5 @@
 (defn journey?
   "Determines whether a record is a journey"
   [record]
-  (not (= (:type record) TYPE_TOPUP)))
+  (and (not= (:type record) TYPE_TOPUP)
+       (not= (:type record) TYPE_REFUND)))

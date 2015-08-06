@@ -15,10 +15,22 @@
     (> minutes 59) (format "%d hrs %s" (int (/ minutes 60)) (format-duration (mod minutes 60)))
     :else (format "%d mins" (int minutes))))
 
+(defn- format-type
+  [type]
+  ; For some reason (case) doesn't work here...
+  (cond
+    (= TYPE_BOAT type) "Boat"
+    (= TYPE_BUS type) "Bus"
+    (= TYPE_OVERGROUND type) "Overground"
+    (= TYPE_RAIL type) "Tube/National Rail"
+    (= TYPE_REFUND type) "Refund"
+    (= TYPE_TOPUP type) "Topup"))
+
 (def ^:private key-mapping {:totalDuration   "Total Duration"
                             :meanDuration    "Avg. Duration"
                             :shortestJourney "Shortest Journey"
                             :longestJourney  "Longest Journey"
+                            :totalCredit     "Total Credit"
                             :totalCost       "Total Cost"
                             :averageCost     "Avg. Cost"
                             :totalJourneys   "Journeys"
@@ -30,11 +42,12 @@
    [(:meanDuration key-mapping) (format-duration (:meanDuration table))]
    [(:shortestJourney key-mapping) (format-duration (:shortestJourney table))]
    [(:longestJourney key-mapping) (format-duration (:longestJourney table))]
+   [(:totalCredit key-mapping) (.format currency-instance (:totalCredit table))]
    [(:totalCost key-mapping) (.format currency-instance (:totalCost table))]
    [(:averageCost key-mapping) (.format currency-instance  (:averageCost table))]
    [(:totalJourneys key-mapping) (format "%d" (:totalJourneys table))]
    (let [[type cnt] (:mostPopularType table)]
-     [(:mostPopularType key-mapping) (format "%s (%d%%)" type (int (* (/ cnt (:totalJourneys table)) 100)))])
+     [(:mostPopularType key-mapping) (format "%s (%d%%)" (format-type type) (int (* (/ cnt (:totalJourneys table)) 100)))])
    ])
 
 (defn- print-table

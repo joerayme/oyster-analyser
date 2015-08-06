@@ -12,7 +12,10 @@ Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
 21-Feb-2015,23:49,00:09,\"Waterloo (Jubilee line entrance) to Old Street\",.00,,11.40,\"The fare for this journey was capped as you reached the daily charging limit for the zones used\"
 24-Feb-2015,21:44,,\"Bus journey, route 55\",1.50,,24.60,\"\"
 08-Mar-2015,12:23,,\"Riverboat ticket bought using pay as you go\",6.44,,7.46,\"\"
-10-Jul-2015,,09:22,\"[No touch-in] to Farringdon\",7.60,,4.86,\"We are not able to show where you touched in during this journey\"")
+10-Jul-2015,,09:22,\"[No touch-in] to Farringdon\",7.60,,4.86,\"We are not able to show where you touched in during this journey\"
+27-Jul-2015,08:30,,\"Automated Refund, Peckham Rye [National Rail]\",,5.70,25.26,\"\"
+31-Jul-2015,08:37,,\"Oyster helpline refund, Peckham Rye [National Rail]\",,12.60,38.06,\"\"
+")
 
 (deftest convert-test
   (testing "with correctly formatted data"
@@ -96,6 +99,26 @@ Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
               :end nil
               :duration nil}
              (nth result 7)))
+
+      (is (= {:type TYPE_REFUND
+              :from nil
+              :to nil
+              :credit (BigDecimal. "5.70")
+              :cost nil
+              :start (t/date-time 2015 7 27 8 30)
+              :end nil
+              :duration nil}
+             (nth result 8)))
+
+      (is (= {:type TYPE_REFUND
+              :from nil
+              :to nil
+              :credit (BigDecimal. "12.60")
+              :cost nil
+              :start (t/date-time 2015 7 31 8 37)
+              :end nil
+              :duration nil}
+             (nth result 9)))
       )))
 
 (deftest is-journey-test
