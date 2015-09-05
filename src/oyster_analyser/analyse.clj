@@ -34,3 +34,9 @@
                            (#(apply max-key val %))
                            )
      }))
+
+(defn get-week-groupings
+  [data]
+  (map (fn [data] [(first data) (summarise (second data))])
+       (group-by #(.withTime (.withDayOfWeek (or (:start %) (:end %)) 1) 0 0 0 0)
+                 data)))
