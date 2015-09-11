@@ -11,12 +11,26 @@ Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
 29-Jan-2015,21:45,,\"Auto top-up, Leicester Square\",,20.00,28.70,\"\"
 21-Feb-2015,23:49,00:09,\"Waterloo (Jubilee line entrance) to Old Street\",.00,,11.40,\"The fare for this journey was capped as you reached the daily charging limit for the zones used\"
 24-Feb-2015,21:44,,\"Bus journey, route 55\",1.50,,24.60,\"\"
-08-Mar-2015,12:23,,\"Riverboat ticket bought using pay as you go\",6.44,,7.46,\"\"")
+08-Mar-2015,12:23,,\"Riverboat ticket bought using pay as you go\",6.44,,7.46,\"\"
+10-Jul-2015,,09:22,\"[No touch-in] to Farringdon\",7.60,,4.86,\"We are not able to show where you touched in during this journey\"
+27-Jul-2015,08:30,,\"Automated Refund, Peckham Rye [National Rail]\",,5.70,25.26,\"\"
+31-Jul-2015,08:37,,\"Oyster helpline refund, Peckham Rye [National Rail]\",,12.60,38.06,\"\"
+")
 
 (deftest convert-test
   (testing "with correctly formatted data"
     (let [result (convert test-data)]
-      (is (= {:type "tube"
+      (is (= {:type TYPE_RAIL
+              :from "[No touch-in]"
+              :to "Farringdon"
+              :credit nil
+              :cost (BigDecimal. "7.60")
+              :start nil
+              :end (t/date-time 2015 7 10 9 22)
+              :duration nil}
+             (nth result 0)))
+
+      (is (= {:type TYPE_RAIL
               :from "Angel"
               :to "Oxford Circus"
               :credit nil
@@ -24,9 +38,9 @@ Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
               :start (t/date-time 2015 1 1 14 3)
               :end (t/date-time 2015 1 1 14 20)
               :duration 17}
-             (nth result 0)))
+             (nth result 1)))
 
-      (is (= {:type "topup"
+      (is (= {:type TYPE_TOPUP
               :from nil
               :to nil
               :credit 20M
@@ -34,9 +48,9 @@ Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
               :start (t/date-time 2015 1 29 21 45)
               :end nil
               :duration nil}
-             (nth result 1)))
+             (nth result 2)))
 
-      (is (= {:type "tube"
+      (is (= {:type TYPE_RAIL
               :from "Waterloo (Jubilee line entrance)"
               :to "Old Street"
               :credit nil
@@ -44,9 +58,9 @@ Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
               :start (t/date-time 2015 2 21 23 49)
               :end (t/date-time 2015 2 22 0 9)
               :duration 20}
-             (nth result 2)))
+             (nth result 3)))
 
-      (is (= {:type "tube"
+      (is (= {:type TYPE_RAIL
               :from "Victoria [London Underground]"
               :to "Brixton [London Underground]"
               :credit nil
@@ -54,9 +68,9 @@ Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
               :start (t/date-time 2015 2 22 0 12)
               :end (t/date-time 2015 2 22 0 24)
               :duration 12}
-             (nth result 3)))
+             (nth result 4)))
 
-      (is (= {:type "bus"
+      (is (= {:type TYPE_BUS
               :from nil
               :to nil
               :credit nil
@@ -64,9 +78,9 @@ Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
               :start (t/date-time 2015 2 24 21 44)
               :end nil
               :duration nil}
-             (nth result 4)))
+             (nth result 5)))
 
-      (is (= {:type "overground"
+      (is (= {:type TYPE_OVERGROUND
               :from "Honor Oak Park"
               :to "Hoxton [London Overground]"
               :credit nil
@@ -74,9 +88,9 @@ Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
               :start (t/date-time 2015 2 25 22 46)
               :end (t/date-time 2015 2 25 23 13)
               :duration 27}
-             (nth result 5)))
+             (nth result 6)))
 
-      (is (= {:type "boat"
+      (is (= {:type TYPE_BOAT
               :from nil
               :to nil
               :credit nil
@@ -84,12 +98,32 @@ Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
               :start (t/date-time 2015 3 8 12 23)
               :end nil
               :duration nil}
-             (nth result 6)))
+             (nth result 7)))
+
+      (is (= {:type TYPE_REFUND
+              :from nil
+              :to nil
+              :credit (BigDecimal. "5.70")
+              :cost nil
+              :start (t/date-time 2015 7 27 8 30)
+              :end nil
+              :duration nil}
+             (nth result 8)))
+
+      (is (= {:type TYPE_REFUND
+              :from nil
+              :to nil
+              :credit (BigDecimal. "12.60")
+              :cost nil
+              :start (t/date-time 2015 7 31 8 37)
+              :end nil
+              :duration nil}
+             (nth result 9)))
       )))
 
 (deftest is-journey-test
   (testing "correctly identifies topups"
-    (is (= (journey? {:type "tube"
+    (is (= (journey? {:type TYPE_RAIL
                     :from "Waterloo (Jubilee line entrance)"
                     :to "Old Street"
                     :start (t/date-time 2015 2 21 23 49)
@@ -98,7 +132,7 @@ Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
                     :cost (BigDecimal. "0")
                     :credit nil})
            true))
-    (is (= (journey? {:type "topup"
+    (is (= (journey? {:type TYPE_TOPUP
                     :from nil
                     :to nil
                     :start (t/date-time 2015 2 25 22 46)

@@ -11,31 +11,48 @@
 
 (defn- format-duration
   [minutes]
+  (if minutes
+    (cond
+      (> minutes 59) (format "%d hrs %s" (int (/ minutes 60)) (format-duration (mod minutes 60)))
+      :else (format "%d mins" (int minutes)))))
+
+(defn- format-type
+  [type]
+  ; For some reason (case) doesn't work here...
   (cond
-    (> minutes 59) (format "%d hrs %s" (int (/ minutes 60)) (format-duration (mod minutes 60)))
-    :else (format "%d mins" (int minutes))))
+    (= TYPE_BOAT type) "Boat"
+    (= TYPE_BUS type) "Bus"
+    (= TYPE_OVERGROUND type) "Overground"
+    (= TYPE_RAIL type) "Tube/Rail"
+    (= TYPE_REFUND type) "Refund"
+    (= TYPE_TOPUP type) "Topup"))
 
 (def ^:private key-mapping {:totalDuration   "Total Duration"
                             :meanDuration    "Avg. Duration"
                             :shortestJourney "Shortest Journey"
                             :longestJourney  "Longest Journey"
+                            :totalCredit     "Total Credit"
                             :totalCost       "Total Cost"
                             :averageCost     "Avg. Cost"
                             :totalJourneys   "Journeys"
                             :mostPopularType "Most popular mode"})
 
+(def ^:private format-mapping {:totalDuration format-duration
+                               :meanDuration format-duration
+                               :shortestJourney format-duration
+                               :longestJourney format-duration
+                               :totalCredit #(.format currency-instance %)
+                               :totalCost #(.format currency-instance %)
+                               :averageCost #(.format currency-instance %)
+                               :totalJourneys #(format "%d" %)
+                               ;; :mostPopularType (fn [[type cnt]] (format "%s (%d journeys)" (format-type type) (int cnt)))})
+                               :mostPopularType (fn [[type cnt]] (format-type type))})
+
 (defn make-table
   [table]
-  [[(:totalDuration key-mapping) (format-duration (:totalDuration table))]
-   [(:meanDuration key-mapping) (format-duration (:meanDuration table))]
-   [(:shortestJourney key-mapping) (format-duration (:shortestJourney table))]
-   [(:longestJourney key-mapping) (format-duration (:longestJourney table))]
-   [(:totalCost key-mapping) (.format currency-instance (:totalCost table))]
-   [(:averageCost key-mapping) (.format currency-instance  (:averageCost table))]
-   [(:totalJourneys key-mapping) (format "%d" (:totalJourneys table))]
-   (let [[type cnt] (:mostPopularType table)]
-     [(:mostPopularType key-mapping) (format "%s (%d%%)" type (int (* (/ cnt (:totalJourneys table)) 100)))])
-   ])
+  (filter identity (map
+                     (fn [key] [(key key-mapping) ((key format-mapping) (key table))])
+                     (keys table))))
 
 (defn- print-table
   [rows]
@@ -45,7 +62,6 @@
                    (fn [k]
                      (apply max (map #(count (str (get % k))) rows)))
                    ks)
-          spacers (map #(apply str (repeat % "-")) widths)
           fmts (map #(str "%" % "s") widths)
           fmt-row (fn [leader divider trailer row]
                     (str leader
@@ -55,8 +71,7 @@
                          trailer))]
       (println)
       (doseq [row rows]
-        (println (fmt-row " " "  " "" row)))
-      (println))))
+        (println (fmt-row " " "  " "" row))))))
 
 (defn- usage
   [opts]
@@ -77,10 +92,16 @@
             max-title (apply max (map count (map #(% key-mapping) (keys summary))))]
         (prn)
         (print (format " From %s to %s"
-                       (f/unparse date-formatter (:start (first data)))
-                       (f/unparse date-formatter (:start (last data)))))
+                       (f/unparse date-formatter (:start (first (filter #(not (nil? (:start %))) data))))
+                       (f/unparse date-formatter (:start (last (filter #(not (nil? (:start %))) data))))))
         (prn)
         (print-table (make-table summary))
+        (print-table
+          (vec (cons (into ["Week beginning"] (vals key-mapping))
+                     (map (fn [data] (into [(f/unparse date-formatter (first data))]
+                                           (map (fn [key] ((key format-mapping) (key (second data))))
+                                                (keys (second data)))))
+                          (get-week-groupings data)))))
         )
       (catch java.io.FileNotFoundException e
         (println (str "Error: " (.getMessage e)))

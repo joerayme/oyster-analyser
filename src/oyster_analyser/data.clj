@@ -8,35 +8,50 @@
 
 (def oyster-formatter (tf/formatter "dd-MMM-yyyy HH:mm"))
 
+(def TYPE_TOPUP "topup")
+(def TYPE_BUS "bus")
+(def TYPE_OVERGROUND "overground")
+(def TYPE_BOAT "boat")
+(def TYPE_RAIL "rail")
+(def TYPE_REFUND "refund")
+
 (defn- get-type
   [line map]
   (conj map
-        {:type (cond (.startsWith (nth line 3) "Auto top-up") "topup"
-                     (.startsWith (nth line 3) "Bus journey") "bus"
-                     (.endsWith (nth line 3) "[London Overground]") "overground"
-                     (.startsWith (nth line 3) "Riverboat") "boat"
-                     :else "tube")}))
+        {:type (cond (.contains (s/lower-case (nth line 3)) "refund") TYPE_REFUND
+                     (.startsWith (nth line 3) "Auto top-up") TYPE_TOPUP
+                     (.startsWith (nth line 3) "Bus journey") TYPE_BUS
+                     (.endsWith (nth line 3) "[London Overground]") TYPE_OVERGROUND
+                     (.startsWith (nth line 3) "Riverboat") TYPE_BOAT
+                     :else TYPE_RAIL)}))
 
 (defn- make-datetime
   [date time]
   (tf/parse oyster-formatter (str date " " time)))
 
-(defn- fix-datetime
-  [date]
-  (if (< (t/hour date) 4) (t/plus date (t/days 1)) date))
+(defn- fix-datetime [date]
+  """
+  Oyster times between midnight and 4am count as the previous day
+  so we fix them by adding a day onto the date if we're between
+  those two times
+  """
+  (if (< (t/hour date) 4)
+    (t/plus date (t/days 1))
+    date))
 
 (defn- get-times
   [line map]
   (conj map
-        {:start (fix-datetime (make-datetime (first line) (second line)))
+        {:start (if (not (empty? (second line)))
+                  (fix-datetime (make-datetime (first line) (second line))))
          :end (if (not (empty? (nth line 2)))
                 (fix-datetime (make-datetime (first line) (nth line 2)))
-                  )}))
+                )}))
 
 (defn- get-duration
   [line map]
   (conj map
-        {:duration (if (not (nil? (:end map)))
+        {:duration (if (and (not (nil? (:start map))) (not (nil? (:end map))))
                      (.getMinutes (.toStandardMinutes (Period. (:start map) (:end map)))))}))
 
 (defn- get-from-to
@@ -44,8 +59,8 @@
   (conj map
         {:from nil
          :to nil}
-        (cond (or (= (:type map) "tube")
-                  (= (:type map) "overground"))
+        (cond (or (= (:type map) TYPE_RAIL)
+                  (= (:type map) TYPE_OVERGROUND))
               (let [parts (s/split (nth line 3) #" to ")]
                 {:from (first parts)
                  :to (second parts)}))))
@@ -84,4 +99,5 @@
 (defn journey?
   "Determines whether a record is a journey"
   [record]
-  (not (= (:type record) "topup")))
+  (and (not= (:type record) TYPE_TOPUP)
+       (not= (:type record) TYPE_REFUND)))
