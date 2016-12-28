@@ -1,5 +1,7 @@
 # oyster-analyser
 
+[![Build Status](https://travis-ci.org/joerayme/oyster-analyser.svg?branch=master)](https://travis-ci.org/joerayme/oyster-analyser)
+
 Performs analysis on a set of Oyster data exports.
 
 ## Build
