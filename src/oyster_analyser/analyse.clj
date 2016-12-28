@@ -3,6 +3,16 @@
 
 (import java.math.RoundingMode)
 
+(defn get-most-popular-type
+  [data]
+  (->> data
+       (filter journey?)
+       (map #(:type %))
+       frequencies
+       (#(apply max-key val %))
+       )
+  )
+
 (defn summarise
   [data]
   (let [durations (remove nil? (map #(:duration %) data))
@@ -27,12 +37,7 @@
                         (.divide total-cost (BigDecimal. (count costs)) 2 RoundingMode/HALF_UP)
                         0)
      :totalJourneys   (count (filter journey? data))
-     :mostPopularType (->> data
-                           (filter journey?)
-                           (map #(:type %))
-                           frequencies
-                           (#(apply max-key val %))
-                           )
+     :mostPopularType (get-most-popular-type data)
      }))
 
 (defn get-week-groupings

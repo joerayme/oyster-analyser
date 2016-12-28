@@ -45,3 +45,13 @@
       (is (= (:totalJourneys results) 3))
       (is (= (:mostPopularType results) [data/TYPE_RAIL 2]))
       )))
+
+(deftest most-popular-type-test
+  (testing "most popular"
+    (is (= [data/TYPE_BUS 2] (get-most-popular-type [(make-record {:type data/TYPE_BUS})
+                                                     (make-record {:type data/TYPE_BUS})
+                                                     (make-record {:type data/TYPE_RAIL})])))
+    (is (= [data/TYPE_RAIL 2] (get-most-popular-type [(make-record {:type data/TYPE_BUS})
+                                                      (make-record {:type data/TYPE_RAIL})
+                                                      (make-record {:type data/TYPE_RAIL})])))
+    ))
