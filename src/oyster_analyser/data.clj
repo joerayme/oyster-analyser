@@ -7,6 +7,7 @@
 (import org.joda.time.Period)
 
 (def oyster-formatter (tf/formatter "dd-MMM-yyyy HH:mm"))
+(def contactless-formatter (tf/formatter "dd-MMM-yy HH:mm"))
 
 (def TYPE_TOPUP "topup")
 (def TYPE_BUS "bus")
@@ -20,14 +21,16 @@
   (conj map
         {:type (cond (.contains (s/lower-case (nth line 3)) "refund") TYPE_REFUND
                      (.startsWith (nth line 3) "Auto top-up") TYPE_TOPUP
-                     (.startsWith (nth line 3) "Bus journey") TYPE_BUS
+                     (.startsWith (s/lower-case (nth line 3)) "bus journey") TYPE_BUS
                      (.endsWith (nth line 3) "[London Overground]") TYPE_OVERGROUND
                      (.startsWith (nth line 3) "Riverboat") TYPE_BOAT
                      :else TYPE_RAIL)}))
 
 (defn- make-datetime
   [date time]
-  (tf/parse oyster-formatter (str date " " time)))
+  (let [formatter (cond (< (count date) 11) contactless-formatter
+                        :else oyster-formatter)]
+    (tf/parse formatter (str date " " time))))
 
 (defn- fix-datetime [date]
   """
@@ -68,16 +71,23 @@
 (defn- get-cost
   [line map]
   (conj map
-        {:cost (if (not (s/blank? (nth line 4))) (BigDecimal. (nth line 4)))}))
+        {:cost (if (not (s/blank? (nth line 4)))
+                 (let [cost (BigDecimal. (nth line 4))]
+                   (if (and (< cost 0)
+                            (= (count line) 7))
+                     (.abs cost)
+                     cost)))}))
 
 (defn- get-credit
   [line map]
   (conj map
-        {:credit (if (not (s/blank? (nth line 5))) (BigDecimal. (nth line 5)))}))
+        {:credit (if (and (not (s/blank? (nth line 5)))
+                          (= (count line) 8))
+                   (BigDecimal. (nth line 5)))}))
 
 (defn- make-map
   [line]
-  (if (and (= (count line) 8)
+  (if (and (> (count line) 6)
            (not (= (first line) "Date")))
     (->> {}
          (get-type line)

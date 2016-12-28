@@ -3,7 +3,7 @@
             [oyster-analyser.data :refer :all]
             [clj-time.core :as t]))
 
-(def test-data "
+(def test-oyster-data "
 Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
 01-Jan-2015,14:03,14:20,\"Angel to Oxford Circus\",2.30,,10.70,\"\"
 21-Feb-2015,00:12,00:24,\"Victoria [London Underground] to Brixton [London Underground]\",2.30,,13.20,\"\"
@@ -17,9 +17,46 @@ Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
 31-Jul-2015,08:37,,\"Oyster helpline refund, Peckham Rye [National Rail]\",,12.60,38.06,\"\"
 ")
 
+(def test-contactless-data "
+Date,Start Time,End Time,Journey,Charged (GBP),Capped,Notes
+30-Apr-16,13:14,,Bus Journey - Route 78,-1.50,N,
+28-Apr-16,09:08,09:41,Denmark Hill to Shoreditch High Street,-2.90,N,
+28-Apr-16,22:37,23:04,Hoxton to Peckham Rye,-2.40,N,
+")
+
 (deftest convert-test
-  (testing "with correctly formatted data"
-    (let [result (convert test-data)]
+  (testing "with correctly formatted contactless data"
+    (let [result (convert test-contactless-data)]
+      (is (= {:type TYPE_RAIL
+              :from "Denmark Hill"
+              :to "Shoreditch High Street"
+              :credit nil
+              :cost (BigDecimal. "2.90")
+              :start (t/date-time 2016 4 28 9 8)
+              :end (t/date-time 2016 4 28 9 41)
+              :duration 33}
+             (nth result 0)))
+      (is (= {:type TYPE_RAIL
+              :from "Hoxton"
+              :to "Peckham Rye"
+              :credit nil
+              :cost (BigDecimal. "2.40")
+              :start (t/date-time 2016 4 28 22 37)
+              :end (t/date-time 2016 4 28 23 04)
+              :duration 27}
+             (nth result 1)))
+      (is (= {:type TYPE_BUS
+              :from nil
+              :to nil
+              :credit nil
+              :cost (BigDecimal. "1.50")
+              :start (t/date-time 2016 4 30 13 14)
+              :end nil
+              :duration nil}
+             (nth result 2)))
+      ))
+  (testing "with correctly formatted oyster data"
+    (let [result (convert test-oyster-data)]
       (is (= {:type TYPE_RAIL
               :from "[No touch-in]"
               :to "Farringdon"
@@ -119,7 +156,8 @@ Date,Start Time,End Time,Journey/Action,Charge,Credit,Balance,Note
               :end nil
               :duration nil}
              (nth result 9)))
-      )))
+      ))
+)
 
 (deftest is-journey-test
   (testing "correctly identifies topups"
