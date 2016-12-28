@@ -34,10 +34,6 @@ Takes a set of CSV files to analyse
               Journeys          77
      Most popular mode   bus (57%)
 
-### Planned features
-
-* Spend per week
-
 ## License
 
 Copyright © 2015 Joe Ray
